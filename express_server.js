@@ -15,7 +15,8 @@ app.post("/urls", (req, res) => {
   urlDatabase[key]= longURL
   
   console.log(req.body); // Log the POST request body to the console
-  res.redirect(`/urls/${key}`); // Respond with redirecting of page
+  res.redirect(`/urls/${key}`); // Respond with redirecting after receiving POST req //We generated a new short URL and then redirected the user to this new URL
+
 });
 
 app.get("/", (req, res) => {
@@ -45,7 +46,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = { id, longURL: urlDatabase[id] };
   res.render("urls_show", templateVars);
 });
-
+//handling our redirect links; this route obtained the id from the route parameters, looked up the corresponding longURL from our urlDatabse
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id]
   res.redirect(longURL);
