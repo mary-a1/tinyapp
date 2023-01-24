@@ -10,8 +10,12 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 app.post("/urls", (req, res) => {
+  const key = generateRandomString();
+  const longURL = req.body.longURL
+  urlDatabase[key]= longURL
+  
   console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${key}`); // Respond with redirecting of page
 });
 
 app.get("/", (req, res) => {
@@ -41,6 +45,12 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = { id, longURL: urlDatabase[id] };
   res.render("urls_show", templateVars);
 });
+
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id]
+  res.redirect(longURL);
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
@@ -48,7 +58,6 @@ app.listen(PORT, () => {
 
 function generateRandomString() {
   const result = Math.random().toString(36).substring(2,8);
-  console.log(result);
+  return result;
 }
 
-generateRandomString();
