@@ -18,7 +18,10 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${key}`); // Respond with redirecting after receiving POST req //We generated a new short URL and then redirected the user to this new URL
 
 });
-
+app.post("/urls/:id/delete", (req,res) =>{
+  delete urlDatabase[req.params.id];
+  res.redirect(`/urls`);
+})
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -42,10 +45,11 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id
-  console.log(urlDatabase[id]);
+  // console.log(urlDatabase[id]);
   const templateVars = { id, longURL: urlDatabase[id] };
   res.render("urls_show", templateVars);
 });
+
 //handling our redirect links; this route obtained the id from the route parameters, looked up the corresponding longURL from our urlDatabse
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id]
