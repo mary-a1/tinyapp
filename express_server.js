@@ -12,6 +12,11 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+app.post("/logout", (req, res) => {
+  res.clearCookie('username', req.body.username);
+  res.redirect("/urls");
+});
+
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
   const templateVars = {
