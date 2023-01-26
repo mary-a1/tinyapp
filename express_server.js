@@ -75,12 +75,17 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const key = generateRandomString();
-  const longURL = req.body.longURL;
-  urlDatabase[key] = longURL;
-
-  console.log(req.body); // Log the POST request body to the console
-  res.redirect(`/urls/${key}`); // Respond with redirecting after receiving POST req //We generated a new short URL and then redirected the user to this new URL
+  const userId = req.cookies.userId;
+  if (!userId){
+    res.send("<html><body>You cannot shorten URL's because you are not logged in.</body></html>\n");
+  } else {
+    const key = generateRandomString();
+    const longURL = req.body.longURL;
+    urlDatabase[key] = longURL;
+  
+    console.log(req.body); // Log the POST request body to the console
+    res.redirect(`/urls/${key}`); // Respond with redirecting after receiving POST req //We generated a new short URL and then redirected the user to this new URL
+  }
 
 });
 
@@ -98,7 +103,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+  res.send("<html><body>Hello<b>World</b></body></html>\n");
 });
 
 app.get("/urls", (req, res) => {
@@ -111,8 +116,10 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies.userId;
+  if (!userId){
+    res.redirect("/login");
+  }
   const user = users[userId];
-
   const templateVars = { user };
   res.render("urls_new", templateVars);
 });
