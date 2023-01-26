@@ -8,8 +8,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 const users = {
@@ -70,7 +76,7 @@ app.post("/login", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   const longURL = req.body.longURL;
-  urlDatabase[id] = longURL;
+  urlDatabase[id].longURL = longURL;
   res.redirect("/urls");
 });
 
@@ -81,7 +87,7 @@ app.post("/urls", (req, res) => {
   } else {
     const key = generateRandomString();
     const longURL = req.body.longURL;
-    urlDatabase[key] = longURL;
+    urlDatabase[key].longURL = longURL;
   
     console.log(req.body); // Log the POST request body to the console
     res.redirect(`/urls/${key}`); // Respond with redirecting after receiving POST req //We generated a new short URL and then redirected the user to this new URL
@@ -130,7 +136,7 @@ app.get("/urls/:id", (req, res) => {
   const userId = req.cookies.userId;
   const user = users[userId];
   // console.log(urlDatabase[id]);
-  const templateVars = { id, longURL: urlDatabase[id], user,};
+  const templateVars = { id, longURL: urlDatabase[id].longURL, user,};
   res.render("urls_show", templateVars);
 });
 
@@ -162,7 +168,7 @@ app.get("/u/:id", (req, res) => {
   if (!urlDatabase[shortUrl]){
     res.send("<html><body>This Short URL does not exist.</body></html>\n")
   } else {
-    const longURL = urlDatabase[req.params.id];
+    const longURL = urlDatabase[req.params.id].longURL;
     res.redirect(longURL);
   }
 });
