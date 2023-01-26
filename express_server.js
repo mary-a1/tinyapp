@@ -12,17 +12,59 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-app.post("/logout", (req, res) => {
-  res.clearCookie('username', req.body.username);
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
+app.post("/register", (req, res) => {
+  const id = generateRandomString();
+  const email = req.body.email;
+  const password = req.body.password;
+  const user = getUserByEmail(email);
+
+  if (email === "" || password === "") {
+    return res.status(400).send("ERROR: please enter a valid input");
+  }
+  if (user) {
+    return res.status(400).send("ERROR: email address already exists");
+  }
+
+  users[id] = { id, email, password };
+
+  res.cookie('user_id', id);
   res.redirect("/urls");
+
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("user_id");
+  res.redirect("/login");
 });
 
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
-  const templateVars = {
-    urls: urlDatabase, username: req.body.username,
-  };
-  res.render("urls_index", templateVars);
+  const id = generateRandomString();
+  const email = req.body.email;
+  const password = req.body.password;
+  const user = getUserByEmail(email, users);
+
+  if (!email || !password) {
+    return res.status(403).send("ERROR: please enter a valid email address and password");
+  } if (!user) {
+    return res.status(403).send("ERROR: please enter a valid email");
+  }
+
+  users[id] = { id, email, password };
+  res.cookie('user_id', id);
+  res.redirect("/urls");
 });
 
 app.post("/urls/:id", (req, res) => {
@@ -41,12 +83,12 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${key}`); // Respond with redirecting after receiving POST req //We generated a new short URL and then redirected the user to this new URL
 
 });
+
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
 });
-
-
+//////////////////////////////GETS///////////////////////////////////////////
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -60,27 +102,43 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = {
-    urls: urlDatabase, username: req.cookies["username"],
-  };
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+
+  const templateVars = { urls: urlDatabase, user };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies["username"]}
+  const userId = req.cookies.userId;
+  const user = users[userId];
 
+  const templateVars = { user };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
+  const userId = req.cookies.userId;
+  const user = users[userId];
   // console.log(urlDatabase[id]);
-  const templateVars = {
-    id, longURL: urlDatabase[id], username: req.cookies["username"],
-  };
+  const templateVars = { id, longURL: urlDatabase[id], user,};
   res.render("urls_show", templateVars);
 });
 
+app.get("/register", (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  const templateVars = { user };
+  res.render("register", templateVars);
+});
+
+app.get("/login", (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  const templateVars = { user };
+  res.render("login", templateVars);
+});
 
 //handling our redirect links; this route obtained the id from the route parameters, looked up the corresponding longURL from our urlDatabse
 app.get("/u/:id", (req, res) => {
@@ -98,3 +156,11 @@ function generateRandomString() {
   return result;
 }
 
+function getUserByEmail(email, users) {
+  for (let id in users) {
+    if (users[id].email === email) {
+      return users[id];
+    }
+  }
+  return null;
+}
