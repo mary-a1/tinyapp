@@ -128,16 +128,24 @@ app.get("/urls/:id", (req, res) => {
 
 app.get("/register", (req, res) => {
   const userId = req.cookies.user_id;
-  const user = users[userId];
-  const templateVars = { user };
-  res.render("register", templateVars);
+  if(userId){
+    res.redirect("/urls");
+  } else {
+    const user = users[userId];
+    const templateVars = { user };
+    res.render("register", templateVars);
+  }
 });
 
 app.get("/login", (req, res) => {
   const userId = req.cookies.user_id;
-  const user = users[userId];
-  const templateVars = { user };
-  res.render("login", templateVars);
+  if(userId){
+    res.redirect("/urls")
+  } else {
+    const user = users[userId];
+    const templateVars = { user };
+    res.render("login", templateVars);
+  }
 });
 
 //handling our redirect links; this route obtained the id from the route parameters, looked up the corresponding longURL from our urlDatabse
