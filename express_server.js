@@ -3,11 +3,11 @@ const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require('cookie-parser');
 const { generateRandomString, getUserByEmail, urlsForUser } = require('./helpers');
+const bcrypt = require("bcryptjs");
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
@@ -38,6 +38,7 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
   const user = getUserByEmail(email, users);
 
+
   if (email === "" || password === "") {
     return res.status(400).send("ERROR: please enter a valid email address and password");
   }
@@ -45,7 +46,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send("ERROR: email address already exists");
   }
 
-  users[id] = { id, email, password };
+  users[id] = { id, email, password: bcrypt.hashSync(password, 10) };
 
   res.cookie('user_id', id);
   res.redirect("/urls");
@@ -54,12 +55,16 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const user = getUserByEmail(email, users);
-
+  
   if (!email || !password) {
     return res.status(403).send("ERROR: please enter a valid email address and password.");
-  } if (!user) {
+  } 
+  const user = getUserByEmail(email, users);
+  if (!user) {
     return res.status(403).send("ERROR: please enter a registered email.");
+  }
+  if (!bcrypt.compareSync(password, user.password)){
+    return res.status(403).send("ERROR: please enter correct password.")
   }
 
   res.cookie('user_id', user.id);
