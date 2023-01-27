@@ -6,10 +6,10 @@ TinyApp is a full stack web application built with Node and Express that allows 
 !["screenshot description"](#)
 
 
-!["screenshot description"](#)
+!["Login Page"](https://github.com/mary-a1/tinyapp/blob/main/docs/:login.png?raw=true)
+docs/:login.png
 
-
-!["screenshot description"](#)
+!["Register Page"](https://github.com/mary-a1/tinyapp/blob/main/docs/:register.png?raw=true)
 
 
 !["screenshot description"](#)
